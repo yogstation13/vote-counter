@@ -1,13 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  DestroyRef,
-  ElementRef,
-  HostListener,
-  inject,
-  OnInit,
-  ViewChild,
-} from "@angular/core";
+import { Component, HostListener } from "@angular/core";
 
 @Component({
   selector: "app-vote-data",
