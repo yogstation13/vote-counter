@@ -1,0 +1,13 @@
+<p-panel header="Parameters" [toggleable]="true" styleClass="max-w-[450px]">
+  <form [formGroup]="form">
+    <div class="py-2 flex flex-col gap-2">
+      <div>
+        <div class="p-float-label flex flex-col gap-2">
+          <input pInputText id="timestamp" aria-describedby="timestamp-help" formControlName="timestamp" />
+          <label for="timestamp">Timestamp</label>
+        </div>
+        <small id="timestamp-help">Enter the unix timestamp used to seed the RNG (provided on discord) </small>
+      </div>
+    </div>
+  </form>
+</p-panel>

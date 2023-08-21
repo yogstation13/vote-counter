@@ -1,0 +1,6 @@
+<p-fieldset legend="Vote data" [toggleable]="true" [collapsed]="hasData">
+  <span class="p-buttonset">
+    <p-button label="Paste"  [disabled]="hasData" (click)="hasData = true" icon="fa-regular fa-paste"></p-button>
+    <p-button label="Delete" [disabled]="!hasData" (click)="hasData = false" styleClass="p-button-danger" icon="fa-regular fa-trash-can"></p-button>
+  </span>
+</p-fieldset>
