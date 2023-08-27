@@ -68,10 +68,17 @@ export class VoteService {
     ),
     shareReplay(1),
   );
-  rounds$ = combineLatest([this.data$, this.settingsService.seats$]).pipe(
-    map(([data, seats]) => [data, Math.min(seats, 20000)] as const),
-    switchMap(([data, total_seats]) => {
-      if (data === null) return of(null);
+  rounds$ = combineLatest([
+    this.data$,
+    this.settingsService.seats$,
+    this.sortedCandidates$,
+  ]).pipe(
+    map(
+      ([data, seats, sortedCandidates]) =>
+        [data, Math.min(seats, 20000), sortedCandidates] as const,
+    ),
+    switchMap(([data, total_seats, sortedCandidates]) => {
+      if (data === null || sortedCandidates === null) return of(null);
 
       const _ballots = data.ballots;
       const candidates = data.candidates;
@@ -210,13 +217,18 @@ export class VoteService {
           }
 
           //EliminationReason.TieBreak
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const eliminated = sortedCandidates.find(x =>
+            lowest_vote.includes(x),
+          )!;
+
           remaining_candidates = remaining_candidates.filter(
-            x => x !== lowest_vote[0],
+            x => x !== eliminated,
           );
           rounds.push({
             ...partial_round,
             reason: EliminationReason.TieBreak,
-            eliminated: [lowest_vote[0]],
+            eliminated: [eliminated],
             candidates_remaining: remaining_candidates,
           });
         }
