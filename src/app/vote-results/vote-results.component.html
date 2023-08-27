@@ -3,17 +3,20 @@
   [toggleable]="true"
   [(collapsed)]="collapsed"
   (collapsedChange)="checkAndLoad()"
-  styleClass="flex flex-col max-w-[80%] mx-auto"
+  styleClass="flex flex-col mx-auto w-full items-center"
 >
   <ng-container *ngIf="loadGraphs">
-    <ng-container *ngFor="let round of rounds$ | async; let i = index">
+    <div
+      *ngFor="let round of rounds$ | async; let i = index"
+      class="max-w-[80vw] overflow-x-auto"
+    >
       <p-divider>Seat {{ i + 1 }}</p-divider>
       <div
         echarts
         [options]="round"
-        class="h-[600px] w-full"
+        class="h-[600px] w-full min-w-[1000px]"
         [initOpts]="{ renderer: 'svg' }"
       ></div>
-    </ng-container>
+    </div>
   </ng-container>
 </p-fieldset>

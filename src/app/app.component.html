@@ -26,7 +26,7 @@
     <ng-container *ngIf="voteService.rounds$ | async; else noData">
       <h3>Winners</h3>
       <p-timeline
-        layout="horizontal"
+        [layout]="this.innerWidth > 500 ? 'horizontal' : 'vertical'"
         [value]="(voteService.rounds$ | async)?.elected_candidates ?? []"
       >
         <ng-template pTemplate="content" let-winner>
