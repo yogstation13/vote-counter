@@ -31,7 +31,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            .angular
+            .angular/
+            node_modules
           key: ${{ runner.os }}-ng-build-${{ hashFiles('.angular') }}
           restore-keys: |
             ${{ runner.os }}-ng-build-
