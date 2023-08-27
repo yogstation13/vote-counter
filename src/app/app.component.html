@@ -3,6 +3,12 @@
     <span>Yogstation IRV Counting Utility</span>
   </header>
   <section class="content flex flex-col gap-10 !pb-10">
+    <h1
+      class="my-[-15px] mb-[-40px] py-0"
+      *ngIf="settingsService.title$ | async as title"
+    >
+      {{ title }}
+    </h1>
     <p-divider class="w-full">Settings</p-divider>
     <div class="flex flex-row flex-wrap gap-5 justify-center mx-auto">
       <app-settings></app-settings>

@@ -9,11 +9,13 @@ export class SettingsService {
   timestamp$ = new BehaviorSubject<number | null>(null);
   seats$ = new BehaviorSubject(5);
   rawVotes$ = new BehaviorSubject<string | null>(null);
+  title$ = new BehaviorSubject("");
 
   constructor(private hashService: HashService) {
     this.setupProp(() => this.timestamp$);
     this.setupProp(() => this.seats$);
     this.setupProp(() => this.rawVotes$);
+    this.setupProp(() => this.title$);
   }
 
   // @ts-expect-error Cannot be bothered to figure out typescript overload syntax

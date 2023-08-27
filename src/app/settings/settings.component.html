@@ -56,6 +56,33 @@
         </div>
         <small id="seats-help">Amount of fools to elect </small>
       </div>
+
+      <div>
+        <div class="p-float-label flex flex-col gap-2">
+          <input
+            pInputText
+            type="text"
+            id="title"
+            aria-describedby="title-help"
+            [ngModel]="settingsService.title$ | async"
+            (blur)="
+              settingsService.updateStringValue(
+                settingsService.title$,
+                $any($event).target.value
+              )
+            "
+            (paste)="
+              settingsService.updateStringValue(
+                settingsService.title$,
+                $any($event).target.value
+              )
+            "
+            name="title"
+          />
+          <label for="title">Title</label>
+        </div>
+        <small id="title-help">Purely decorative</small>
+      </div>
     </div>
   </form>
 </p-fieldset>

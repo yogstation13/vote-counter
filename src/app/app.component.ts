@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from "@angular/core";
 import { DrandService } from "./drand.service";
+import { SettingsService } from "./settings.service";
 import { VoteService } from "./vote.service";
 
 @Component({
@@ -18,5 +19,6 @@ export class AppComponent implements OnInit {
   constructor(
     public voteService: VoteService,
     public drandService: DrandService,
+    public settingsService: SettingsService,
   ) {}
 }
