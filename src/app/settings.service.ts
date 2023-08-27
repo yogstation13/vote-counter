@@ -56,9 +56,6 @@ export class SettingsService {
 
   private setupProp<T>(subject: () => BehaviorSubject<T>) {
     const localStorageKey = `setting-(${subject.toString()})`;
-    const localStorageValue = localStorage.getItem(localStorageKey);
-    if (localStorageValue !== null)
-      subject().next(JSON.parse(localStorageValue));
     subject()
       .pipe(
         scan(([, prev], cur) => [prev, cur] as [T | null, T], [null, null] as [
@@ -69,7 +66,6 @@ export class SettingsService {
       .subscribe(([prev, cur]) => {
         if (prev === cur) return;
         void this.hashService.updateParam(localStorageKey, JSON.stringify(cur));
-        localStorage.setItem(localStorageKey, JSON.stringify(cur));
       });
     this.hashService
       .getSubject(localStorageKey)

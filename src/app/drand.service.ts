@@ -5,6 +5,7 @@ import { MessageService } from "primeng/api";
 import {
   BehaviorSubject,
   catchError,
+  EMPTY,
   finalize,
   map,
   Observable,
@@ -75,7 +76,7 @@ export class DrandService {
         summary: "Error fetching Drand info",
         detail: JSON.stringify(err),
       });
-      throw err;
+      return EMPTY;
     }),
     shareReplay(),
   );
@@ -105,7 +106,7 @@ export class DrandService {
               summary: "Error fetching Drand round",
               detail: JSON.stringify(err),
             });
-            throw err;
+            return EMPTY;
           }),
           tap(() => this.requests--),
           finalize(() => this.requests--),

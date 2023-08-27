@@ -6,13 +6,20 @@ import { CompressionService } from "./compression.service";
   providedIn: "root",
 })
 export class HashService {
+  private lock: Promise<unknown> | null = null;
+  private lockCanary = {};
   private subjects = new Map<string, BehaviorSubject<string | null>>();
 
   constructor(private compressionService: CompressionService) {
     window.addEventListener("hashchange", ev => this.onUrlChange(ev.newURL));
+
+    if (window.location.hash === "" || window.location.hash === "#") {
+      const stored = localStorage.getItem("storedhash");
+      if (stored !== null) window.location.hash = stored;
+    }
   }
 
-  public async updateParam(param: string, value: string) {
+  private async _updateParam(param: string, value: string) {
     const params = await this.getHashParams(window.location.href);
 
     if (params.get(param) === value) return;
@@ -21,9 +28,30 @@ export class HashService {
     window.location.hash = await this.compressionService.compress(
       params.toString(),
     );
+    localStorage.setItem("storedhash", window.location.hash);
   }
 
-  public async getSubject(param: string) {
+  private wrapCall<T>(fn: () => Promise<T>) {
+    const currentCanary = (this.lockCanary = {});
+    const self_destruct = (param: T) => {
+      if (this.lockCanary === currentCanary) this.lock = null;
+      return param;
+    };
+
+    let lock: Promise<T>;
+    if (this.lock) {
+      lock = this.lock.then(fn).then(self_destruct);
+    } else {
+      lock = fn().then(self_destruct);
+    }
+    this.lock = lock;
+
+    return lock;
+  }
+  public updateParam = (param: string, value: string) =>
+    this.wrapCall(() => this._updateParam(param, value));
+
+  private async _getSubject(param: string) {
     const params = await this.getHashParams(window.location.href);
 
     let subject = this.subjects.get(param);
@@ -34,6 +62,9 @@ export class HashService {
       );
     return subject;
   }
+
+  public getSubject = (param: string) =>
+    this.wrapCall(() => this._getSubject(param));
 
   private async getHashParams(_url: string): Promise<URLSearchParams> {
     const url = new URL(_url);

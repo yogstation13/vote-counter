@@ -8,7 +8,12 @@
   <ng-container *ngIf="loadGraphs">
     <ng-container *ngFor="let round of rounds$ | async; let i = index">
       <p-divider>Seat {{ i + 1 }}</p-divider>
-      <div echarts [options]="round" class="h-[600px] w-full"></div>
+      <div
+        echarts
+        [options]="round"
+        class="h-[600px] w-full"
+        [initOpts]="{ renderer: 'svg' }"
+      ></div>
     </ng-container>
   </ng-container>
 </p-fieldset>

@@ -78,6 +78,10 @@
           "defaultConfiguration": "production"
         },
         "serve": {
+          "options": {
+            "host": "0.0.0.0",
+            "disableHostCheck": true
+          },
           "builder": "@angular-builders/custom-webpack:dev-server",
           "configurations": {
             "production": {
