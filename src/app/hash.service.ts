@@ -9,18 +9,22 @@ export class HashService {
   private lock: Promise<unknown> | null = null;
   private lockCanary = {};
   private subjects = new Map<string, BehaviorSubject<string | null>>();
+  public hash$ = new BehaviorSubject(window.location.hash);
 
   constructor(private compressionService: CompressionService) {
-    window.addEventListener("hashchange", ev => this.onUrlChange(ev.newURL));
+    window.addEventListener("hashchange", () => {
+      this.hash$.next(window.location.hash);
+      void this.onUrlChange();
+    });
 
-    if (window.location.hash === "" || window.location.hash === "#") {
+    if (this.hash$.value === "" || this.hash$.value === "#") {
       const stored = localStorage.getItem("storedhash");
       if (stored !== null) window.location.hash = stored;
     }
   }
 
   private async _updateParam(param: string, value: string) {
-    const params = await this.getHashParams(window.location.href);
+    const params = await this.getHashParams();
 
     if (params.get(param) === value) return;
 
@@ -28,7 +32,7 @@ export class HashService {
     window.location.hash = await this.compressionService.compress(
       params.toString(),
     );
-    localStorage.setItem("storedhash", window.location.hash);
+    localStorage.setItem("storedhash", this.hash$.value);
   }
 
   private wrapCall<T>(fn: () => Promise<T>) {
@@ -52,7 +56,7 @@ export class HashService {
     this.wrapCall(() => this._updateParam(param, value));
 
   private async _getSubject(param: string) {
-    const params = await this.getHashParams(window.location.href);
+    const params = await this.getHashParams();
 
     let subject = this.subjects.get(param);
     if (subject === undefined)
@@ -66,15 +70,14 @@ export class HashService {
   public getSubject = (param: string) =>
     this.wrapCall(() => this._getSubject(param));
 
-  private async getHashParams(_url: string): Promise<URLSearchParams> {
-    const url = new URL(_url);
+  private async getHashParams(): Promise<URLSearchParams> {
     return new URLSearchParams(
-      await this.compressionService.decompress(url.hash.substring(1)),
+      await this.compressionService.decompress(this.hash$.value.substring(1)),
     );
   }
 
-  private async onUrlChange(url: string) {
-    const params = await this.getHashParams(url);
+  private async onUrlChange() {
+    const params = await this.getHashParams();
 
     for (const [deletedKey, deletedSubject] of this.subjects.entries()) {
       if (params.has(deletedKey)) continue;
