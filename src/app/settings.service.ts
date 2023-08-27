@@ -55,7 +55,9 @@ export class SettingsService {
   }
 
   private setupProp<T>(subject: () => BehaviorSubject<T>) {
-    const localStorageKey = `setting-(${subject.toString()})`;
+    const localStorageKey = `setting-(${subject
+      .toString()
+      .replaceAll(" ", "")})`;
     subject()
       .pipe(
         scan(([, prev], cur) => [prev, cur] as [T | null, T], [null, null] as [
