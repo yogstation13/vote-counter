@@ -8,3 +8,13 @@ body {
   font-family: var(--font-family);
   margin: 0;
 }
+
+.p-timeline-horizontal .p-timeline-event-connector {
+  width: unset !important;
+}
+.p-timeline-event {
+  min-height: 2rem !important;
+}
+.p-timeline-event-opposite {
+  flex-grow: 0 !important;
+}

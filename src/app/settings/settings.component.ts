@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { SettingsService } from "../settings.service";
 
 @Component({
   selector: "app-settings",
@@ -7,7 +7,5 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
   styleUrls: ["./settings.component.scss"],
 })
 export class SettingsComponent {
-  form = new FormGroup({
-    timestamp: new FormControl("", Validators.required),
-  });
+  constructor(public settingsService: SettingsService) {}
 }

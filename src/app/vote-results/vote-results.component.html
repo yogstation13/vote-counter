@@ -1,0 +1,14 @@
+<p-fieldset
+  legend="Election details"
+  [toggleable]="true"
+  [(collapsed)]="collapsed"
+  (collapsedChange)="checkAndLoad()"
+  styleClass="flex flex-col max-w-[80%] mx-auto"
+>
+  <ng-container *ngIf="loadGraphs">
+    <ng-container *ngFor="let round of rounds$ | async; let i = index">
+      <p-divider>Seat {{ i + 1 }}</p-divider>
+      <div echarts [options]="round" class="h-[600px] w-full"></div>
+    </ng-container>
+  </ng-container>
+</p-fieldset>

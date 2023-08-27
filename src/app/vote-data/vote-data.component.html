@@ -1,11 +1,93 @@
-<p-fieldset legend="Vote data" [toggleable]="true" [collapsed]="hasData">
-  <span class="p-buttonset">
+<p-fieldset legend="Vote data" [toggleable]="true">
+  <div>
     <p-button
-      label="Paste"
-      [disabled]="true"
-      (click)="listening = true"
-      (blur)="listening = false"
+      [label]="
+        listening
+          ? 'Press Ctl+V to paste'
+          : this.pasteInvalid
+          ? 'Invalid Data'
+          : 'Paste'
+      "
+      (onClick)="listening = true"
+      (onBlur)="listening = false"
+      aria-describedby="vote-data-help"
       icon="fa-regular fa-paste"
+      styleClass="mr-5"
     ></p-button>
-  </span>
+    <p-button
+      label="Clear"
+      (onClick)="voteService.clear()"
+      aria-describedby="vote-data-help"
+      icon="fa-regular fa-close"
+      styleClass="p-button-danger"
+    ></p-button>
+  </div>
+  <small id="vote-data-help">
+    To learn how to obtain this data from google sheets,
+    <a
+      tabindex="0"
+      (click)="displayHelp = true"
+      (keydown)="displayHelp = true"
+      class="cursor-pointer text-blue-600 underline"
+      >click here</a
+    >
+  </small>
+  <p-divider />
+  <p *ngIf="voteService.preprocessingData$ | async as data">
+    {{ totalBallots$ | async }} ballots loaded.
+    {{ erroredBallots$ | async }} errors
+  </p>
+  <p-table
+    *ngIf="errorData$ | async as data"
+    [value]="data"
+    rowGroupMode="subheader"
+    groupRowsBy="ballotIdx"
+    dataKey="ballotIdx"
+  >
+    <ng-template pTemplate="groupheader" let-vote let-expanded="expanded">
+      <tr>
+        <td>
+          <p-button
+            type="button"
+            [pRowToggler]="vote"
+            styleClass="p-button-text p-button-rounded p-button-plain mr-2"
+            [icon]="
+              expanded
+                ? 'fa-solid fa-chevron-down'
+                : 'fa-solid fa-chevron-right'
+            "
+          ></p-button>
+        </td>
+        <td class="text-red-600">
+          {{ vote.ballot.parseError }}
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="rowexpansion" let-vote>
+      <tr>
+        <td>
+          {{ vote.idx }}
+        </td>
+        <td [class.text-red-600]="!vote.vote">
+          {{ vote.vote ?? "Missing" }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-dialog
+    header="Help"
+    [(visible)]="displayHelp"
+    [resizable]="false"
+    [modal]="true"
+    [dismissableMask]="true"
+    [draggable]="false"
+  >
+    <img
+      class="h-auto w-[80vw]"
+      ngSrc="assets/sheets.webp"
+      alt="GIF detailing what data to copy"
+      width="800"
+      height="800"
+    />
+  </p-dialog>
 </p-fieldset>

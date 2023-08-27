@@ -2,8 +2,48 @@
   <header>
     <span>Yogstation IRV Counting Utility</span>
   </header>
-  <section class="content flex flex-col gap-10">
-    <app-settings></app-settings>
-    <app-vote-data></app-vote-data>
+  <section class="content flex flex-col gap-10 !pb-10">
+    <p-divider class="w-full">Settings</p-divider>
+    <div class="flex flex-row flex-wrap gap-5 justify-center mx-auto">
+      <app-settings></app-settings>
+      <app-vote-data></app-vote-data>
+    </div>
+
+    <div class="w-[80%]">
+      <ng-container *ngIf="drandService.isLoading$ | async">
+        <p-progressBar
+          mode="indeterminate"
+          class="w-full"
+          styleClass="h-2"
+        ></p-progressBar>
+      </ng-container>
+
+      <p-messages></p-messages>
+    </div>
+
+    <p-divider class="w-full">Results</p-divider>
+
+    <ng-container *ngIf="voteService.rounds$ | async; else noData">
+      <h3>Winners</h3>
+      <p-timeline
+        layout="horizontal"
+        [value]="(voteService.rounds$ | async)?.elected_candidates ?? []"
+      >
+        <ng-template pTemplate="content" let-winner>
+          <div class="mr-5">{{ winner }}</div>
+        </ng-template>
+      </p-timeline>
+      <app-vote-results></app-vote-results>
+
+      <h3>Ordered candidate list</h3>
+      <p-timeline [value]="(voteService.sortedCandidates$ | async) ?? []">
+        <ng-template pTemplate="content" let-candidate>
+          <div>{{ candidate }}</div>
+        </ng-template>
+      </p-timeline>
+    </ng-container>
+    <ng-template #noData>
+      <h3>Fill in all settings and provide data to continue</h3>
+    </ng-template>
   </section>
 </div>

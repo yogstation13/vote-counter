@@ -1,13 +1,27 @@
-<p-panel header="Parameters" [toggleable]="true" styleClass="max-w-[450px]">
-  <form [formGroup]="form">
-    <div class="py-2 flex flex-col gap-2">
+<p-fieldset legend="Parameters" [toggleable]="true" styleClass="max-w-[450px]">
+  <form>
+    <div class="py-2 flex flex-col gap-10">
       <div>
-        <div class="p-float-label flex flex-col gap-2">
-          <input
-            pInputText
+        <div class="p-float-label flex flex-col gap-5">
+          <p-inputNumber
+            [useGrouping]="false"
+            pKeyFilter="pint"
             id="timestamp"
             aria-describedby="timestamp-help"
-            formControlName="timestamp"
+            [ngModel]="settingsService.timestamp$ | async"
+            (onBlur)="
+              settingsService.updateNumberValue(
+                settingsService.timestamp$,
+                $any($event).target.value
+              )
+            "
+            (paste)="
+              settingsService.updateNumberValue(
+                settingsService.timestamp$,
+                $any($event).target.value
+              )
+            "
+            name="timestamp"
           />
           <label for="timestamp">Timestamp</label>
         </div>
@@ -15,6 +29,33 @@
           >Enter the unix timestamp used to seed the RNG (provided on discord)
         </small>
       </div>
+
+      <div>
+        <div class="p-float-label flex flex-col gap-2">
+          <p-inputNumber
+            [useGrouping]="false"
+            pKeyFilter="pint"
+            id="seats"
+            aria-describedby="seats-help"
+            [ngModel]="settingsService.seats$ | async"
+            (onBlur)="
+              settingsService.updateNumberValue(
+                settingsService.seats$,
+                $any($event).target.value
+              )
+            "
+            (paste)="
+              settingsService.updateNumberValue(
+                settingsService.seats$,
+                $any($event).target.value
+              )
+            "
+            name="seats"
+          />
+          <label for="seats">Seats</label>
+        </div>
+        <small id="seats-help">Amount of fools to elect </small>
+      </div>
     </div>
   </form>
-</p-panel>
+</p-fieldset>
