@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { MessageService } from "primeng/api";
+import { BehaviorSubject, distinctUntilChanged } from "rxjs";
 import { CompressionService } from "./compression.service";
 
 @Injectable({
@@ -11,16 +12,40 @@ export class HashService {
   private subjects = new Map<string, BehaviorSubject<string | null>>();
   public hash$ = new BehaviorSubject(window.location.hash);
 
-  constructor(private compressionService: CompressionService) {
-    window.addEventListener("hashchange", () => {
-      this.hash$.next(window.location.hash);
-      void this.onUrlChange();
-    });
+  constructor(
+    private compressionService: CompressionService,
+    private messageService: MessageService,
+  ) {
+    window.addEventListener("hashchange", () =>
+      this.hash$.next(window.location.hash),
+    );
 
     if (this.hash$.value === "" || this.hash$.value === "#") {
       const stored = localStorage.getItem("storedhash");
       if (stored !== null) window.location.hash = stored;
     }
+
+    this.hash$.pipe(distinctUntilChanged()).subscribe(async () => {
+      const params = await this.getHashParams();
+
+      for (const [deletedKey, deletedSubject] of this.subjects.entries()) {
+        if (params.has(deletedKey)) continue;
+        if (deletedSubject.getValue() === null) continue;
+        deletedSubject.next(null);
+      }
+
+      for (const [param, paramValue] of params.entries()) {
+        const subject = this.subjects.get(param);
+        if (subject !== undefined) {
+          if (subject.getValue() !== paramValue) subject.next(paramValue);
+        } else {
+          this.subjects.set(
+            param,
+            new BehaviorSubject<string | null>(paramValue),
+          );
+        }
+      }
+    });
   }
 
   private async _updateParam(param: string, value: string) {
@@ -32,7 +57,6 @@ export class HashService {
     window.location.hash = await this.compressionService.compress(
       params.toString(),
     );
-    localStorage.setItem("storedhash", this.hash$.value);
   }
 
   private wrapCall<T>(fn: () => Promise<T>) {
@@ -71,30 +95,23 @@ export class HashService {
     this.wrapCall(() => this._getSubject(param));
 
   private async getHashParams(): Promise<URLSearchParams> {
-    return new URLSearchParams(
-      await this.compressionService.decompress(this.hash$.value.substring(1)),
-    );
-  }
+    try {
+      const result = new URLSearchParams(
+        await this.compressionService.decompress(this.hash$.value.substring(1)),
+      );
+      localStorage.setItem("storedhash", this.hash$.value);
+      return result;
+    } catch (e) {
+      this.messageService.add({
+        severity: "error",
+        summary: "Error decoding URL",
+        detail: JSON.stringify(e),
+      });
 
-  private async onUrlChange() {
-    const params = await this.getHashParams();
-
-    for (const [deletedKey, deletedSubject] of this.subjects.entries()) {
-      if (params.has(deletedKey)) continue;
-      if (deletedSubject.getValue() === null) continue;
-      deletedSubject.next(null);
-    }
-
-    for (const [param, paramValue] of params.entries()) {
-      const subject = this.subjects.get(param);
-      if (subject !== undefined) {
-        if (subject.getValue() !== paramValue) subject.next(paramValue);
-      } else {
-        this.subjects.set(
-          param,
-          new BehaviorSubject<string | null>(paramValue),
-        );
-      }
+      const stored = localStorage.getItem("storedhash");
+      window.location.hash =
+        stored !== this.hash$.value && stored !== null ? stored : "";
+      return new URLSearchParams();
     }
   }
 }
