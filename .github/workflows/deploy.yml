@@ -32,7 +32,7 @@ jobs:
         with:
           path: |
             .angular/
-            node_modules
+            node_modules/
           key: ${{ runner.os }}-ng-build-${{ hashFiles('.angular/') }}
           restore-keys: |
             ${{ runner.os }}-ng-build-
