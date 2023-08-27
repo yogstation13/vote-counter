@@ -1,5 +1,6 @@
 import { Component, HostListener } from "@angular/core";
 import { map } from "rxjs";
+import { SettingsService } from "../settings.service";
 import { ValidatedBallot } from "../types";
 import { VoteService } from "../vote.service";
 
@@ -12,6 +13,7 @@ export class VoteDataComponent {
   listening = false;
   displayHelp = false;
   pasteInvalid = false;
+  copied = false;
 
   errorData$ = this.voteService.preprocessingData$.pipe(
     map(data => {
@@ -36,7 +38,10 @@ export class VoteDataComponent {
     map(x => x?.ballots.filter(x => x.parseError !== undefined).length),
   );
 
-  constructor(public voteService: VoteService) {}
+  constructor(
+    public voteService: VoteService,
+    public settingService: SettingsService,
+  ) {}
 
   @HostListener("document:paste", ["$event"])
   paste(event: ClipboardEvent) {
@@ -51,8 +56,16 @@ export class VoteDataComponent {
       event.clipboardData.getData("text"),
     );
 
-    setTimeout(() => {
-      this.pasteInvalid = false;
-    }, 800);
+    setTimeout(() => (this.pasteInvalid = false), 800);
+  }
+
+  public copy() {
+    const rawValue = this.settingService.rawVotes$.getValue();
+    if (rawValue === null) return;
+
+    navigator.clipboard.writeText(rawValue).then(() => {
+      this.copied = true;
+      setTimeout(() => (this.copied = false), 800);
+    });
   }
 }

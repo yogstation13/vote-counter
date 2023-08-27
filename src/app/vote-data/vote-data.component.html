@@ -15,6 +15,13 @@
       styleClass="mr-5"
     ></p-button>
     <p-button
+      [label]="this.copied ? 'Copied!' : 'Copy'"
+      (onClick)="copy()"
+      aria-describedby="vote-data-help"
+      icon="fa-solid fa-copy"
+      styleClass="mr-5"
+    ></p-button>
+    <p-button
       label="Clear"
       (onClick)="voteService.clear()"
       aria-describedby="vote-data-help"
