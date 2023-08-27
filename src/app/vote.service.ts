@@ -258,7 +258,7 @@ export class VoteService {
   }
 
   load(rawData: string): boolean {
-    this.clear();
+    if (this.lastLoaded !== null) this.clear();
 
     const lines = rawData.trim().split("\n");
     let headerLine = lines.shift();
