@@ -1,5 +1,5 @@
 <p-fieldset legend="Vote data" [toggleable]="true">
-  <div>
+  <div class="flex flex-col gap-2 items-center">
     <p-button
       [label]="
         listening
@@ -11,23 +11,36 @@
       (onClick)="listening = true"
       (onBlur)="listening = false"
       aria-describedby="vote-data-help"
-      icon="fa-regular fa-paste"
-      styleClass="mr-5"
-    ></p-button>
-    <p-button
-      [label]="this.copied ? 'Copied!' : 'Copy'"
-      (onClick)="copy()"
-      aria-describedby="vote-data-help"
-      icon="fa-solid fa-copy"
-      styleClass="mr-5"
-    ></p-button>
-    <p-button
-      label="Clear"
-      (onClick)="voteService.clear()"
-      aria-describedby="vote-data-help"
-      icon="fa-regular fa-close"
-      styleClass="p-button-danger"
-    ></p-button>
+      [styleClass]="this.pasteInvalid ? 'p-button-danger' : ''"
+    >
+      <ng-template pTemplate="icon">
+        <fa-icon icon="paste"></fa-icon>
+      </ng-template>
+    </p-button>
+    <br />
+    <div class="inline-block">
+      <p-button
+        [label]="this.copied ? 'Copied!' : 'Copy'"
+        [disabled]="settingService.rawVotes$.getValue() === null"
+        (onClick)="copy()"
+        aria-describedby="vote-data-help"
+        styleClass="mr-3"
+      >
+        <ng-template pTemplate="icon">
+          <fa-icon icon="copy"></fa-icon> </ng-template
+      ></p-button>
+      <p-button
+        label="Clear"
+        [disabled]="settingService.rawVotes$.getValue() === null"
+        (onClick)="voteService.clear()"
+        aria-describedby="vote-data-help"
+        styleClass="p-button-danger"
+      >
+        <ng-template pTemplate="icon">
+          <fa-icon icon="close"></fa-icon>
+        </ng-template>
+      </p-button>
+    </div>
   </div>
   <small id="vote-data-help">
     To learn how to obtain this data from google sheets,
@@ -58,12 +71,13 @@
             type="button"
             [pRowToggler]="vote"
             styleClass="p-button-text p-button-rounded p-button-plain mr-2"
-            [icon]="
-              expanded
-                ? 'fa-solid fa-chevron-down'
-                : 'fa-solid fa-chevron-right'
-            "
-          ></p-button>
+          >
+            <ng-template pTemplate="icon">
+              <fa-icon
+                [icon]="expanded ? 'chevron-down' : 'chevron-right'"
+              ></fa-icon>
+            </ng-template>
+          </p-button>
         </td>
         <td class="text-red-600">
           {{ vote.ballot.parseError }}
